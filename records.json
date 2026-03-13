@@ -1,0 +1,20 @@
+[
+  {
+    "domain": "example.com",
+    "provider": ["porkbun", "adguard_home"],
+    "records": [
+      {
+        "host": "www",
+        "type": "CNAME",
+        "content": "target.io",
+        "ttl": "600"
+      },
+      {
+        "host": "api",
+        "type": "CNAME",
+        "content": "api-target.io",
+        "ttl": "300"
+      }
+    ]
+  }
+]
