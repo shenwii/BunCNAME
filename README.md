@@ -22,19 +22,18 @@ ADGUARD_HOME_USERNAME=admin
 ADGUARD_HOME_PASSWORD=password
 
 # Optional
-CONFIG_PATH=records.json
-SYNC_INTERVAL=30  # minutes
+PORT=8000
 ```
 
 ## Records Configuration
 
-Edit `records.json` to define the records to sync:
+The HTTP payload format is the same as the previous `records.json` schema:
 
 ```json
 [
   {
     "domain": "example.com",
-    "provider": ["porkbun", "adguard_home"],
+    "providers": ["porkbun", "adguard_home"],
     "records": [
       {
         "host": "www",
@@ -47,15 +46,40 @@ Edit `records.json` to define the records to sync:
 ]
 ```
 
-`provider` can be a string or an array of strings for multiple providers.
+`providers` can be a string or an array of strings for multiple providers.
 
 ## Notes
 
 - For AdGuard Home, only CNAME-like rewrite rules are managed (domain to domain mappings). A records (domain to IP) are ignored.
-- The tool will create, update, or delete records to match the desired state in `records.json`.
+- The tool will create, update, or delete records to match the desired state in the payload you send.
 
-## Running
+## Running as HTTP service
+
+Start the app:
 
 ```bash
+pip install -r requirements.txt
 python main.py
+```
+
+Then push the JSON payload to:
+
+```bash
+curl -X POST http://localhost:8000/sync \
+  -H "Content-Type: application/json" \
+  -d '[
+    {
+      "domain": "example.com",
+      "providers": ["porkbun"],
+      "records": [
+        {"host": "www", "type": "CNAME", "content": "target.io", "ttl": 600}
+      ]
+    }
+  ]'
+```
+
+Response:
+
+```json
+{"status": "ok", "message": "DNS sync completed", "records": 1}
 ```
