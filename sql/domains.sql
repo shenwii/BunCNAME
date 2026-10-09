@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS domains (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    domain TEXT UNIQUE NOT NULL,
+    providers TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_domains_domain ON domains(domain);

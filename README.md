@@ -83,3 +83,50 @@ Response:
 ```json
 {"status": "ok", "message": "DNS sync completed", "records": 1}
 ```
+
+## SQL Schemas
+
+There is an `sql/` folder included with two reference SQL files that show example table schemas you can use if you want to store desired records in a database and drive syncs from that data:
+
+- `sql/domains.sql` — reference table for domains and metadata (e.g. domain name, provider list).
+- `sql/dns_records.sql` — reference table for DNS records associated with domains (e.g. host, type, content, ttl).
+
+These files are intended as examples only; adjust column types/names to match your database conventions.
+
+## Using your own database with BunCNAME
+
+1. Create the tables in your database using the SQL files in `sql/` (for example, via `psql` or `mysql` depending on your DB):
+
+```bash
+# Example for PostgreSQL
+psql -U <user> -d <db> -f sql/domains.sql
+psql -U <user> -d <db> -f sql/dns_records.sql
+```
+
+2. Populate the tables with the desired domain/record rows.
+
+3. Query your database to produce a JSON payload that matches the `records.json` schema used by this project (an array of domain objects, each with `domain`, `providers`, and `records`).
+
+4. POST that JSON to the running BunCNAME service to trigger a sync:
+
+```bash
+curl -X POST http://localhost:8000/sync \
+  -H "Content-Type: application/json" \
+  -d @payload.json
+```
+
+Where `payload.json` contains the exported JSON from your DB, e.g.:
+
+```json
+[
+  {
+    "domain": "example.com",
+    "providers": ["porkbun"],
+    "records": [
+      {"host": "www", "type": "CNAME", "content": "target.io", "ttl": 600}
+    ]
+  }
+]
+```
+
+This approach keeps the sync logic in BunCNAME (the HTTP endpoint) while letting you manage desired state in whatever database you prefer.
