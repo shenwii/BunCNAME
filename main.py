@@ -3,7 +3,7 @@ import logging
 from typing import Dict, Any
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Body
 import uvicorn
 
 from porkbun_client import PorkbunClient
@@ -54,7 +54,7 @@ async def health():
 
 
 @app.post("/sync")
-async def sync_records(config: list):
+async def sync_records(config: list = Body(...)):
     try:
         reconciler = create_reconciler()
         reconciler.sync_config(config)
